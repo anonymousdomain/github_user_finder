@@ -1,4 +1,3 @@
-import { type } from '@testing-library/user-event/dist/type'
 import { createContext, useReducer } from 'react'
 import GithubReducer from './GithubReducer'
 const GithubContext = createContext()
@@ -13,17 +12,20 @@ export const GthubProvider = ({ children }) => {
 	}
 	const [state, dispatch] = useReducer(GithubReducer, intialState)
 	//get initial users for testing purposes
-	const fetchUsers = async () => {
+	const searchUsers = async (text) => {
 		setLoading()
-		const res = await fetch(`${GITHUB_URL}/users`, {
+		const params = new URLSearchParams({
+			q: text,
+		})
+		const res = await fetch(`${GITHUB_URL}/search/users?${params}`, {
 			headers: {
 				Authorization: `token ${GITHUB_TOKEN}`,
 			},
 		})
-		const data = await res.json()
+		const { items } = await res.json()
 		dispatch({
 			type: 'GET_USERS',
-			payload: data,
+			payload: items,
 		})
 	}
 	const setLoading = () => {
@@ -31,12 +33,20 @@ export const GthubProvider = ({ children }) => {
 			type: 'SET_LOADING',
 		})
 	}
+
+	//clear users from state 
+	const clearUsers=()=>{
+		dispatch({
+			type:'CLEAR_USERS'
+		})
+	}
 	return (
 		<GithubContext.Provider
 			value={{
 				users: state.users,
 				loading: state.loading,
-				
+				searchUsers,
+				clearUsers
 			}}
 		>
 			{children}
