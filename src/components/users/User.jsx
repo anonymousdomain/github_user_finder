@@ -11,7 +11,7 @@ const User = () => {
 
 	useEffect(() => {
 		getUser(params.login)
-	}, [])
+	}, [getUser, params.login])
 	const {
 		name,
 		type,
